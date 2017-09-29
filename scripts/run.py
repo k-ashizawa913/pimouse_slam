@@ -9,42 +9,47 @@ from pimouse_ros.msg import LightSensorValues
 class Run():
     def __init__(self):
         self.cmd_vel = rospy.Publisher('/cmd_vel',Twist,queue_size=1)
+
         self.sensor_values = LightSensorValues()
         rospy.Subscriber('/lightsensors', LightSensorValues, self.callback_lightsensors)
 
     def callback_lightsensors(self,messages):
         self.sensor_values = messages
 
+    def wall_front(self,ls):
+        return ls.left_forward < 75 or ls.right_forward < 75
+
+    def too_right(self,ls):
+        return ls.right_side < 75
+
+    def too_left(self,ls):
+        return ls.left_side < 75
+
     def run(self):
-        rate = rospy.Rate(20)
+        rate = rospy.Rate(10)
         data = Twist()
 
-        accel = 0.02
         data.linear.x = 0.0
-        data.angular.z = 0
+        data.angular.z = 0.0
         while not rospy.is_shutdown():
-            data.linear.x += accel
+	    data.linear.x = 0.0
 
-            if self.sensor_values.sum_forward > 50:
-                data.linear.x = 0.0
-            elif data.linear.x <= 0.2:
-                data.linear.x = 0.2
-            elif data.linear.x >= 0.8:
-                data.linear.x = 0.8
-            if data.linear.x < 0.2:
-                data.angular.z = 0.0
-            elif self.sensor_values.left_side < 10:
-                data.angular.z = 0.0
+            if self.wall_front(self.sensor_values):
+                data.linear.x = 0.15
+            elif self.too_right(self.sensor_values):
+                data.angular.z = 3.14/4
+            elif self.too_left(self.sensor_values):
+                data.angular.z = - 3.14/4
             else:
-                target = 50
-                error = (target - self.sensor_values.left_side)/50.0
-                data.angular.z = error * 3 * math.pi / 180.0
-
+		data.linear.x = 0.0
+                data.angular.z = 0.0
+                
             self.cmd_vel.publish(data)
             rate.sleep()
 
 if __name__ == '__main__':
-    rospy.init_node('run')
+    rospy.init_node('wall_trace')
+
     rospy.wait_for_service('/motor_on')
     rospy.wait_for_service('/motor_off')
     rospy.on_shutdown(rospy.ServiceProxy('/motor_off',Trigger).call)
