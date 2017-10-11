@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #encoding: utf8
+
 import subprocess
 
-stdout = subprocess.check_output("getsi",shell=True)
-ssid_list = [line.lstrip('ESSID:').strip('"') for line in stdout.split()]
-print ssid_list
+cmd = "sudo iwlist wlan0 scan | grep -e ESSID -e Quality"
+stdout = subprocess.check_output(cmd,shell=True)
+print stdout
+
