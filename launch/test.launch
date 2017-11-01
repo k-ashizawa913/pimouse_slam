@@ -2,5 +2,7 @@
   <include file="$(find pimouse_ros)/launch/pimouse2.launch" />
   <node pkg="pimouse_slam" name="run" type="run.py" required="true" />
 
+  <node pkg="pimouse_slam" name="rviz" type="rviz.py" required="true" />
+
   <node pkg="pimouse_slam" name="motors" type="motors.py" required="true" />
 </launch>
