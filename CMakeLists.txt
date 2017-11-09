@@ -7,8 +7,10 @@ project(pimouse_slam)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
-
+find_package(catkin REQUIRED COMPONENTS
+  visualization_msgs
+  rospy
+  )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -66,8 +68,9 @@ find_package(catkin REQUIRED)
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+#   std_msgs
+#   visualization_msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

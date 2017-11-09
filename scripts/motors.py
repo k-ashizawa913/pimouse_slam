@@ -25,7 +25,7 @@ class Motor():
 	self.using_cmd_vel = False
 
 	self.pub_odom = rospy.Publisher('odom', Odometry, queue_size=10)
-	self.pub_mark = rospy.Publisher('mark' Marker, queue_size=10)
+	self.pub_mark = rospy.Publisher('mark' , Marker, queue_size=10)
 	self.bc_odom = tf.TransformBroadcaster()
 
 	self.x, self.y, self.th = 0.0, 0.0, 0.0
@@ -136,25 +136,37 @@ class Motor():
         self.th += self.vth * dt
 
         q = tf.transformations.quaternion_from_euler(0, 0, self.th)
-        self.bc_mark.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
+        self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
 
 	mark = Marker()
-
+	
         mark.header.stamp = self.cur_time
-        mark.header.frame_id = "mark"
+	
+	mark.header.frame_id = "odom"
+	mark.header.stamp = rospy.Time.now()
+	
+	mark.ns = "marker"
+	mark.id = 1
+	mark.type = Marker.SPHERE
+	mark.action = Marker.ADD
+	
 
-        mark.pose.pose.position = Point(self.x,self.y,0)
-        mark.pose.pose.orientation = Quaternion(*q)
+        mark.pose.position = Point(self.x,self.y,0)
+        mark.pose.orientation = Quaternion(*q)
 
-        mark.child_frame_id = "base_link"
-        mark.twist.twist.linear.x = self.vx
-        mark.twist.twist.linear.y = 0.0
-        mark.twist.twist.angular.z = self.vth
+        mark.scale.x = 0.5
+        mark.scale.y = 0.5
+        mark.scale.z = 0.5
 
-        self.pub_odom.publish(mark)
-
+        mark.color.r = 1.0
+        mark.color.g = 0.0
+        mark.color.b = 1.0
+        mark.color.a = 0.5
+	
+ 	self.pub_mark.publish(mark)
+	
         self.last_time = self.cur_time
-
+	
 
 if __name__ == '__main__':
     rospy.init_node('motors')
@@ -163,4 +175,5 @@ if __name__ == '__main__':
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
 	m.send_odom()
+	m.send_mark()
         rate.sleep()
