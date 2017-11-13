@@ -130,60 +130,69 @@ class Motor():
 	self.last_time = self.cur_time
 
     def send_mark(self):
-    	#while not rospy.is_shutdown():
+        self.cur_time = rospy.Time.now()
+	#前回の処理から何秒経ったのか	
+        dt = self.cur_time.to_sec() - self.last_time.to_sec()
+        self.x += self.vx * math.cos(self.th) * dt
+        self.y += self.vx * math.sin(self.th) * dt
+        self.th += self.vth * dt
 
-            self.cur_time = rospy.Time.now()
-	    #前回の処理から何秒経ったのか	
-            dt = self.cur_time.to_sec() - self.last_time.to_sec()
-            self.x += self.vx * math.cos(self.th) * dt
-            self.y += self.vx * math.sin(self.th) * dt
-            self.th += self.vth * dt
+        q = tf.transformations.quaternion_from_euler(0, 0, self.th)
+        self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
 
-            q = tf.transformations.quaternion_from_euler(0, 0, self.th)
-            self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
-
-	    markerArray =  MarkerArray()
-	    mark = Marker()
+	#markerArray =  MarkerArray()
+	mark = Marker()
 	
-            mark.header.stamp = self.cur_time
-	    mark.header.frame_id = "map"
-	    #
-	    id = 0
-	    #
-	    mark.ns = "marker"
-	    mark.id = id
-	    mark.type = Marker.SPHERE
-	    mark.action = Marker.ADD
-
-            mark.pose.position = Point(self.x,self.y,0.2)
-            mark.pose.orientation = Quaternion(*q)
-
-            mark.scale.x = 0.5
-            mark.scale.y = 0.5
-            mark.scale.z = 0.01
-
-            mark.color.r = 0.1
-            mark.color.g = 0.1
-            mark.color.b = 1.0
-            mark.color.a = 0.5
+        mark.header.stamp = self.cur_time
+	mark.header.frame_id = "map"
 	    
-	    mark.lifetime = rospy.Duration()
-
- 	    self.pub_mark.publish(mark)
-	    markerArray.markers.append(mark)#
-	    self.pub_markerArray.publish(markerArray)
-
-            self.last_time = self.cur_time
+	id = 0
 	    
-	    id = id + 1	
-	    
+	mark.ns = "marker"
+	mark.id = id
+	mark.type = Marker.SPHERE
+	mark.action = Marker.ADD
+
+        mark.pose.position = Point(self.x,self.y,0.2)
+        mark.pose.orientation = Quaternion(*q)
+
+        mark.scale.x = 0.5
+        mark.scale.y = 0.5
+        mark.scale.z = 0.01
+
+        mark.color.r = 0.1
+        mark.color.g = 0.1
+        mark.color.b = 1.0
+        mark.color.a = 0.5
+
+	count = 0
+
+        if(count > MARKERS_MAX):
+            markerArray.markers.pop(0)
+
+        markerArray.markers.append(mark)
+
+        id = 0
+        for m in markerArray.markers:
+            m.id = id
+            id += 1
+
+        self.pub_markerArray.publish(markerArray)
+        count += 1
+
+	self.last_time = self.cur_time
+
+	time.sleep(0.1)   
 	
 if __name__ == '__main__':
     rospy.init_node('motors')
     m = Motor()
-
     rate = rospy.Rate(10)
+    t = time.time()
+    MARKERS_MAX = 100
+    markerArray = MarkerArray()
     while not rospy.is_shutdown():
 	m.send_odom()
-	m.send_mark()
         rate.sleep()
+	if int(t - time.time()) % 10 == 0:
+	    m.send_mark()
