@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #encoding: utf8
-import sys, rospy, math, tf, time
+import sys, rospy, math, tf, time, subprocess
 from pimouse_ros.msg import MotorFreqs
 from geometry_msgs.msg import Twist, Quaternion, TransformStamped, Point
 from std_srvs.srv import Trigger, TriggerResponse
@@ -136,9 +136,24 @@ class Motor():
         self.x += self.vx * math.cos(self.th) * dt
         self.y += self.vx * math.sin(self.th) * dt
         self.th += self.vth * dt
-
         q = tf.transformations.quaternion_from_euler(0, 0, self.th)
         self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
+
+####
+
+	#cmd = "sudo iwlist wlan0 scan | grep -e ESSID -e Quality"
+	#stdout = subprocess.check_output(cmd,shell=True)
+	#print stdout
+
+
+        cmd = "sudo iwconfig wlan0 | grep -o =.*/ "
+        stdout = subprocess.check_output(cmd,shell=True)
+        print stdout[11:13]
+	st = float(stdout[11:13])/100.0
+	print st
+
+####
+
 
 	#markerArray =  MarkerArray()
 	mark = Marker()
@@ -156,8 +171,8 @@ class Motor():
         mark.pose.position = Point(self.x,self.y,0.2)
         mark.pose.orientation = Quaternion(*q)
 
-        mark.scale.x = 0.5
-        mark.scale.y = 0.5
+        mark.scale.x = st	#0.5
+        mark.scale.y = st	#0.5
         mark.scale.z = 0.01
 
         mark.color.r = 0.1
@@ -194,5 +209,8 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
 	m.send_odom()
         rate.sleep()
-	if int(t - time.time()) % 10 == 0:
+	#if int(t - time.time()) % 10 == 0:
+	if ( time.time() - t )  >  5 :
+	    print (time.time() - t)
+	    t = time.time() 
 	    m.send_mark()
