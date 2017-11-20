@@ -104,10 +104,14 @@ class Motor():
     def send_odom(self):
 	self.cur_time = rospy.Time.now()
 
+	#曖昧な修正
 	dt = self.cur_time.to_sec() - self.last_time.to_sec()
 	self.x += self.vx * math.cos(self.th) * dt
+        #self.x += (self.vx * math.cos(self.th) * dt) * 0.4#
 	self.y += self.vx * math.sin(self.th) * dt
-	self.th += self.vth * dt
+        #self.y += (self.vx * math.sin(self.th) * dt) * 0.4#
+	#self.th += self.vth * dt
+	self.th += (self.vth * dt) * 0.4#
 
 	q = tf.transformations.quaternion_from_euler(0, 0, self.th)
 	self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","odom")
@@ -135,31 +139,33 @@ class Motor():
         dt = self.cur_time.to_sec() - self.last_time.to_sec()
         self.x += self.vx * math.cos(self.th) * dt
         self.y += self.vx * math.sin(self.th) * dt
-        self.th += self.vth * dt
+        self.th += (self.vth * dt) * 0.4#
         q = tf.transformations.quaternion_from_euler(0, 0, self.th)
         self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
 
-####
-
-	#cmd = "sudo iwlist wlan0 scan | grep -e ESSID -e Quality"
-	#stdout = subprocess.check_output(cmd,shell=True)
+	####電波強度取得
+	cmd = "sudo iwlist wlan0 scan | egrep -B 2 322_hayakawalab_g"
+	#指定したSSIDがある行の上２行を表示
+	stdout = subprocess.check_output(cmd,shell=True)
 	#print stdout
+	#print stdout[28:30]
+	st = float(stdout[28:30])/100.0
+	#print st
 
 
-        cmd = "sudo iwconfig wlan0 | grep -o =.*/ "
-        stdout = subprocess.check_output(cmd,shell=True)
-        print stdout[11:13]
-	st = float(stdout[11:13])/100.0
-	print st
+        #cmd = "sudo iwconfig wlan0 | grep -o Quality.*/ "
+        #stdout = subprocess.check_output(cmd,shell=True)
+	#print stdout
+        #print stdout[8:10]
+	#st = float(stdout[8:10])/100.0
 
-####
+	#print st
 
 
-	#markerArray =  MarkerArray()
 	mark = Marker()
 	
         mark.header.stamp = self.cur_time
-	mark.header.frame_id = "map"
+	mark.header.frame_id = "map"#
 	    
 	id = 0
 	    
@@ -197,7 +203,49 @@ class Motor():
 
 	self.last_time = self.cur_time
 
-	time.sleep(0.1)   
+	#time.sleep(0.1)   
+
+    def send_mark2(self):
+        self.cur_time = rospy.Time.now()
+        
+        q = tf.transformations.quaternion_from_euler(0, 0, self.th)
+        self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark2")
+
+        mark2 = Marker()
+
+        mark2.header.stamp = self.cur_time
+        mark2.header.frame_id = "map"#
+
+        id = 0
+
+        mark2.ns = "marker"
+        mark2.id = id
+        mark2.type = Marker.TEXT_VIEW_FACING
+        mark2.action = Marker.ADD
+
+	mark2.pose.position.x = -2.0
+	mark2.pose.position.y = -3.0
+	mark2.pose.position.z = 2.0
+	mark2.pose.orientation.x = 1.0
+	mark2.pose.orientation.y = 1.0
+	mark2.pose.orientation.z = 1.0
+	mark2.pose.orientation.w = 1.0
+
+
+	mark2.text = "322_hayakawalab_g"
+
+        mark2.scale.x = 0.5
+        mark2.scale.y = 0.5
+        mark2.scale.z = 0.5
+
+        mark2.color.r = 0.1
+        mark2.color.g = 0.1
+        mark2.color.b = 1.0
+        mark2.color.a = 1.0
+
+        self.pub_mark.publish(mark2)
+        self.last_time = self.cur_time
+
 	
 if __name__ == '__main__':
     rospy.init_node('motors')
@@ -208,9 +256,8 @@ if __name__ == '__main__':
     markerArray = MarkerArray()
     while not rospy.is_shutdown():
 	m.send_odom()
+#	m.send_mark2()
         rate.sleep()
-	#if int(t - time.time()) % 10 == 0:
-	if ( time.time() - t )  >  5 :
-	    print (time.time() - t)
-	    t = time.time() 
-	    m.send_mark()
+#	if ( time.time() - t )  >  5 :
+#	    t = time.time() 
+#	    m.send_mark()
