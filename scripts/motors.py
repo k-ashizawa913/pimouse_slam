@@ -152,20 +152,10 @@ class Motor():
 	st = float(stdout[28:30])/100.0
 	#print st
 
-
-        #cmd = "sudo iwconfig wlan0 | grep -o Quality.*/ "
-        #stdout = subprocess.check_output(cmd,shell=True)
-	#print stdout
-        #print stdout[8:10]
-	#st = float(stdout[8:10])/100.0
-
-	#print st
-
-
 	mark = Marker()
 	
         mark.header.stamp = self.cur_time
-	mark.header.frame_id = "map"#
+	mark.header.frame_id = "odom"#map
 	    
 	id = 0
 	    
@@ -214,7 +204,7 @@ class Motor():
         mark2 = Marker()
 
         mark2.header.stamp = self.cur_time
-        mark2.header.frame_id = "map"#
+        mark2.header.frame_id = "odom"#map
 
         id = 0
 
@@ -256,8 +246,8 @@ if __name__ == '__main__':
     markerArray = MarkerArray()
     while not rospy.is_shutdown():
 	m.send_odom()
-#	m.send_mark2()
-        rate.sleep()
-#	if ( time.time() - t )  >  5 :
-#	    t = time.time() 
-#	    m.send_mark()
+	m.send_mark2()
+	if ( time.time() - t )  >  5 :
+	    t = time.time() 
+	    m.send_mark()
+	    rate.sleep()
