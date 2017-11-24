@@ -107,9 +107,7 @@ class Motor():
 	#曖昧な修正
 	dt = self.cur_time.to_sec() - self.last_time.to_sec()
 	self.x += self.vx * math.cos(self.th) * dt
-        #self.x += (self.vx * math.cos(self.th) * dt) * 0.4#
 	self.y += self.vx * math.sin(self.th) * dt
-        #self.y += (self.vx * math.sin(self.th) * dt) * 0.4#
 	#self.th += self.vth * dt
 	self.th += (self.vth * dt) * 0.4#
 
@@ -141,7 +139,7 @@ class Motor():
         self.y += self.vx * math.sin(self.th) * dt
         self.th += (self.vth * dt) * 0.4#
         q = tf.transformations.quaternion_from_euler(0, 0, self.th)
-        self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
+#       self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
 
 	####電波強度取得
 	cmd = "sudo iwlist wlan0 scan | egrep -B 2 322_hayakawalab_g"
@@ -155,7 +153,7 @@ class Motor():
 	mark = Marker()
 	
         mark.header.stamp = self.cur_time
-	mark.header.frame_id = "odom"#map
+	mark.header.frame_id = "odom"
 	    
 	id = 0
 	    
@@ -193,18 +191,13 @@ class Motor():
 
 	self.last_time = self.cur_time
 
-	#time.sleep(0.1)   
-
     def send_mark2(self):
         self.cur_time = rospy.Time.now()
         
-        q = tf.transformations.quaternion_from_euler(0, 0, self.th)
-        self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark2")
-
         mark2 = Marker()
 
         mark2.header.stamp = self.cur_time
-        mark2.header.frame_id = "odom"#map
+        mark2.header.frame_id = "odom"
 
         id = 0
 
@@ -247,6 +240,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
 	m.send_odom()
 	m.send_mark2()
+	rate.sleep()
 	if ( time.time() - t )  >  5 :
 	    t = time.time() 
 	    m.send_mark()
