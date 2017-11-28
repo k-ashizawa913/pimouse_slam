@@ -139,10 +139,10 @@ class Motor():
         self.y += self.vx * math.sin(self.th) * dt
         self.th += (self.vth * dt) * 0.4#
         q = tf.transformations.quaternion_from_euler(0, 0, self.th)
-#       self.bc_odom.sendTransform((self.x,self.y,0.0), q, self.cur_time,"base_link","mark")
 
 	####電波強度取得
-	cmd = "sudo iwlist wlan0 scan | egrep -B 2 322_hayakawalab_g"
+	#cmd = 'sudo iwlist wlan0 scan | egrep -B 2 322_hayakawalab_g'
+	cmd = 'sudo iwlist wlan0 scan | egrep -B 2 '+ ssid
 	#指定したSSIDがある行の上２行を表示
 	stdout = subprocess.check_output(cmd,shell=True)
 	#print stdout
@@ -162,7 +162,7 @@ class Motor():
 	mark.type = Marker.SPHERE
 	mark.action = Marker.ADD
 
-        mark.pose.position = Point(self.x,self.y,0.2)
+        mark.pose.position = Point(self.x-0.2,self.y-0.2,0.2)#
         mark.pose.orientation = Quaternion(*q)
 
         mark.scale.x = st	#0.5
@@ -191,7 +191,7 @@ class Motor():
 
 	self.last_time = self.cur_time
 
-    def send_mark2(self):
+    def send_ssid(self):
         self.cur_time = rospy.Time.now()
         
         mark2 = Marker()
@@ -214,8 +214,7 @@ class Motor():
 	mark2.pose.orientation.z = 1.0
 	mark2.pose.orientation.w = 1.0
 
-
-	mark2.text = "322_hayakawalab_g"
+	mark2.text = ssid
 
         mark2.scale.x = 0.5
         mark2.scale.y = 0.5
@@ -229,6 +228,301 @@ class Motor():
         self.pub_mark.publish(mark2)
         self.last_time = self.cur_time
 
+#########ここから下試験#######
+
+    def send_mark2(self):
+        self.cur_time = rospy.Time.now()
+        #前回の処理から何秒経ったのか
+        dt = self.cur_time.to_sec() - self.last_time.to_sec()
+        self.x += self.vx * math.cos(self.th) * dt
+        self.y += self.vx * math.sin(self.th) * dt
+        self.th += (self.vth * dt) * 0.4#
+        q = tf.transformations.quaternion_from_euler(0, 0, self.th)
+
+        ####電波強度取得
+        cmd = 'sudo iwlist wlan0 scan | egrep -B 2 MIZUNO'
+        #指定したSSIDがある行の上２行を表示
+        stdout = subprocess.check_output(cmd,shell=True)
+        #print stdout
+        #print stdout[28:30]
+        st = float(stdout[28:30])/100.0
+        #print st
+
+        mark = Marker()
+
+        mark.header.stamp = self.cur_time
+        mark.header.frame_id = "odom"
+
+        id = 0
+
+        mark.ns = "marker2"
+        mark.id = id
+        mark.type = Marker.SPHERE
+        mark.action = Marker.ADD
+
+        mark.pose.position = Point(self.x-0.2,self.y+0.2,0.2)#
+        mark.pose.orientation = Quaternion(*q)
+
+        mark.scale.x = st     
+        mark.scale.y = st
+        mark.scale.z = 0.01
+
+        mark.color.r = 1.0
+        mark.color.g = 0.1
+        mark.color.b = 0.1
+        mark.color.a = 0.5
+
+        count = 0
+
+        if(count > MARKERS_MAX):
+            markerArray.markers.pop(0)
+
+        markerArray.markers.append(mark)
+
+        id = 0
+        for m in markerArray.markers:
+            m.id = id
+            id += 1
+
+        self.pub_markerArray.publish(markerArray)
+        count += 1
+
+        self.last_time = self.cur_time
+
+    def send_ssid2(self):
+        self.cur_time = rospy.Time.now()
+
+        mark2 = Marker()
+
+        mark2.header.stamp = self.cur_time
+        mark2.header.frame_id = "odom"
+
+        id = 0
+
+        mark2.ns = "marker2"
+        mark2.id = id
+        mark2.type = Marker.TEXT_VIEW_FACING
+        mark2.action = Marker.ADD
+
+        mark2.pose.position.x = -1.0
+        mark2.pose.position.y = -3.0
+        mark2.pose.position.z = 2.0
+        mark2.pose.orientation.x = 1.0
+        mark2.pose.orientation.y = 1.0
+        mark2.pose.orientation.z = 1.0
+        mark2.pose.orientation.w = 1.0
+
+        mark2.text = ssid2
+
+        mark2.scale.x = 0.5
+        mark2.scale.y = 0.5
+        mark2.scale.z = 0.5
+
+        mark2.color.r = 1.0
+        mark2.color.g = 0.1
+        mark2.color.b = 0.1
+        mark2.color.a = 1.0
+
+        self.pub_mark.publish(mark2)
+        self.last_time = self.cur_time
+
+
+    def send_mark3(self):
+        self.cur_time = rospy.Time.now()
+        #前回の処理から何秒経ったのか
+        dt = self.cur_time.to_sec() - self.last_time.to_sec()
+        self.x += self.vx * math.cos(self.th) * dt
+        self.y += self.vx * math.sin(self.th) * dt
+        self.th += (self.vth * dt) * 0.4#
+        q = tf.transformations.quaternion_from_euler(0, 0, self.th)
+
+        ####電波強度取得
+        #cmd = 'sudo iwlist wlan0 scan | egrep -B 2 322_hayakawalab_g'
+        cmd = 'sudo iwlist wlan0 scan | egrep -B 2 '+ ssid3
+        #指定したSSIDがある行の上２行を表示
+        stdout = subprocess.check_output(cmd,shell=True)
+        #print stdout
+        #print stdout[28:30]
+        st = float(stdout[28:30])/100.0
+        #print st
+
+        mark = Marker()
+
+        mark.header.stamp = self.cur_time
+        mark.header.frame_id = "odom"
+
+        id = 0
+
+        mark.ns = "marker3"
+        mark.id = id
+        mark.type = Marker.SPHERE
+        mark.action = Marker.ADD
+
+        mark.pose.position = Point(self.x+0.2,self.y+0.2,0.2)
+        mark.pose.orientation = Quaternion(*q)
+
+        mark.scale.x = st       #0.5
+        mark.scale.y = st       #0.5
+        mark.scale.z = 0.01
+
+        mark.color.r = 0.1
+        mark.color.g = 1.0
+        mark.color.b = 0.1
+        mark.color.a = 0.5
+
+        count = 0
+
+        if(count > MARKERS_MAX):
+            markerArray.markers.pop(0)
+
+        markerArray.markers.append(mark)
+
+        id = 0
+        for m in markerArray.markers:
+            m.id = id
+            id += 1
+
+        self.pub_markerArray.publish(markerArray)
+        count += 1
+
+        self.last_time = self.cur_time
+
+    def send_ssid3(self):
+        self.cur_time = rospy.Time.now()
+
+        mark2 = Marker()
+
+        mark2.header.stamp = self.cur_time
+        mark2.header.frame_id = "odom"
+
+        id = 0
+
+        mark2.ns = "marker3"
+        mark2.id = id
+        mark2.type = Marker.TEXT_VIEW_FACING
+        mark2.action = Marker.ADD
+
+        mark2.pose.position.x = -0.0
+        mark2.pose.position.y = -3.0
+        mark2.pose.position.z = 2.0
+        mark2.pose.orientation.x = 1.0
+        mark2.pose.orientation.y = 1.0
+        mark2.pose.orientation.z = 1.0
+        mark2.pose.orientation.w = 1.0
+
+        mark2.text = ssid3
+
+        mark2.scale.x = 0.5
+        mark2.scale.y = 0.5
+        mark2.scale.z = 0.5
+
+        mark2.color.r = 0.1
+        mark2.color.g = 1.0
+        mark2.color.b = 0.1
+        mark2.color.a = 1.0
+
+        self.pub_mark.publish(mark2)
+        self.last_time = self.cur_time
+
+
+    def send_mark4(self):
+        self.cur_time = rospy.Time.now()
+        #前回の処理から何秒経ったのか
+        dt = self.cur_time.to_sec() - self.last_time.to_sec()
+        self.x += self.vx * math.cos(self.th) * dt
+        self.y += self.vx * math.sin(self.th) * dt
+        self.th += (self.vth * dt) * 0.4#
+        q = tf.transformations.quaternion_from_euler(0, 0, self.th)
+
+        ####電波強度取得
+        #cmd = 'sudo iwlist wlan0 scan | egrep -B 2 322_hayakawalab_g'
+        cmd = 'sudo iwlist wlan0 scan | egrep -B 2 '+ ssid4
+        #指定したSSIDがある行の上２行を表示
+        stdout = subprocess.check_output(cmd,shell=True)
+        #print stdout
+        #print stdout[28:30]
+        st = float(stdout[28:30])/100.0
+        #print st
+
+        mark = Marker()
+
+        mark.header.stamp = self.cur_time
+        mark.header.frame_id = "odom"
+
+        id = 0
+
+        mark.ns = "marker4"
+        mark.id = id
+        mark.type = Marker.SPHERE
+        mark.action = Marker.ADD
+
+        mark.pose.position = Point(self.x+0.2,self.y-0.2,0.2)
+        mark.pose.orientation = Quaternion(*q)
+
+        mark.scale.x = st       #0.5
+        mark.scale.y = st       #0.5
+        mark.scale.z = 0.01
+
+        mark.color.r = 0.5
+        mark.color.g = 0.1
+        mark.color.b = 0.5
+        mark.color.a = 0.5
+
+        count = 0
+
+        if(count > MARKERS_MAX):
+            markerArray.markers.pop(0)
+
+        markerArray.markers.append(mark)
+
+        id = 0
+        for m in markerArray.markers:
+            m.id = id
+            id += 1
+
+        self.pub_markerArray.publish(markerArray)
+        count += 1
+
+        self.last_time = self.cur_time
+
+    def send_ssid4(self):
+        self.cur_time = rospy.Time.now()
+
+        mark2 = Marker()
+
+        mark2.header.stamp = self.cur_time
+        mark2.header.frame_id = "odom"
+
+        id = 0
+
+        mark2.ns = "marker4"
+        mark2.id = id
+        mark2.type = Marker.TEXT_VIEW_FACING
+        mark2.action = Marker.ADD
+
+        mark2.pose.position.x = +1.0
+        mark2.pose.position.y = -3.0
+        mark2.pose.position.z = 2.0
+        mark2.pose.orientation.x = 1.0
+        mark2.pose.orientation.y = 1.0
+        mark2.pose.orientation.z = 1.0
+        mark2.pose.orientation.w = 1.0
+
+        mark2.text = ssid4
+
+        mark2.scale.x = 0.5
+        mark2.scale.y = 0.5
+        mark2.scale.z = 0.5
+
+        mark2.color.r = 0.5
+        mark2.color.g = 0.1
+        mark2.color.b = 0.5
+        mark2.color.a = 1.0
+
+        self.pub_mark.publish(mark2)
+        self.last_time = self.cur_time
+
+
 	
 if __name__ == '__main__':
     rospy.init_node('motors')
@@ -237,11 +531,21 @@ if __name__ == '__main__':
     t = time.time()
     MARKERS_MAX = 100
     markerArray = MarkerArray()
+    ssid = '322_hayakawalab_g'
+    ssid2 = 'MIZUNO WORKTIME'
+    ssid3 = '001D73A9FA20_G'
+    ssid4 = '438Ogawa-g'
     while not rospy.is_shutdown():
 	m.send_odom()
-	m.send_mark2()
+	m.send_ssid()
+	m.send_ssid2()
+	m.send_ssid3()
+	m.send_ssid4()
 	rate.sleep()
 	if ( time.time() - t )  >  5 :
 	    t = time.time() 
 	    m.send_mark()
+	    m.send_mark2()
+	    m.send_mark3()
+	    m.send_mark4()
 	    rate.sleep()
