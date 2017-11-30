@@ -260,7 +260,7 @@ class Motor():
         mark.type = Marker.SPHERE
         mark.action = Marker.ADD
 
-        mark.pose.position = Point(self.x-0.2,self.y+0.2,0.2)#
+        mark.pose.position = Point(self.x-0.2,self.y+0.2,0.4)#
         mark.pose.orientation = Quaternion(*q)
 
         mark.scale.x = st     
@@ -358,7 +358,7 @@ class Motor():
         mark.type = Marker.SPHERE
         mark.action = Marker.ADD
 
-        mark.pose.position = Point(self.x+0.2,self.y+0.2,0.2)
+        mark.pose.position = Point(self.x+0.2,self.y+0.2,0.6)
         mark.pose.orientation = Quaternion(*q)
 
         mark.scale.x = st       #0.5
@@ -456,7 +456,7 @@ class Motor():
         mark.type = Marker.SPHERE
         mark.action = Marker.ADD
 
-        mark.pose.position = Point(self.x+0.2,self.y-0.2,0.2)
+        mark.pose.position = Point(self.x+0.2,self.y-0.2,0.8)
         mark.pose.orientation = Quaternion(*q)
 
         mark.scale.x = st       #0.5
@@ -542,7 +542,7 @@ if __name__ == '__main__':
 	m.send_ssid3()
 	m.send_ssid4()
 	rate.sleep()
-	if ( time.time() - t )  >  5 :
+	if ( time.time() - t )  >  10 :
 	    t = time.time() 
 	    m.send_mark()
 	    m.send_mark2()
