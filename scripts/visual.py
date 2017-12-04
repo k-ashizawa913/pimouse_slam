@@ -150,7 +150,7 @@ class Visual():
 	    if i == 0 :
 	        cmd = 'sudo iwlist wlan0 scan | egrep -B 2 '+ ssid
 		mark.ns = "marker"
-		mark.pose.position = Point(self.x-0.2,self.y-0.2,0.2)		
+		mark.pose.position = Point(self.x-0.15,self.y-0.15,0.2)		
                 mark.color.r = 0.1        
             	mark.color.g = 0.1
             	mark.color.b = 1.0
@@ -158,7 +158,7 @@ class Visual():
 	    elif i == 1 :
 		cmd = 'sudo iwlist wlan0 scan | egrep -B 2 MIZUNO'
 		mark.ns = "marker2"
-		mark.pose.position = Point(self.x-0.2,self.y+0.2,0.2)
+		mark.pose.position = Point(self.x-0.15,self.y+0.15,0.2)
 		mark.color.r = 1.0
             	mark.color.g = 0.1
             	mark.color.b = 0.1
@@ -166,7 +166,7 @@ class Visual():
 	    elif i == 2 :
 		cmd = 'sudo iwlist wlan0 scan | egrep -B 2 '+ ssid3
 		mark.ns = "marker3"
-		mark.pose.position = Point(self.x+0.2,self.y+0.2,0.2)
+		mark.pose.position = Point(self.x+0.15,self.y+0.15,0.2)
             	mark.color.r = 0.1
             	mark.color.g = 1.0
             	mark.color.b = 0.1
@@ -174,7 +174,7 @@ class Visual():
 	    else : 	
 		cmd = 'sudo iwlist wlan0 scan | egrep -B 2 '+ ssid4
 		mark.ns = "marker4"
-		mark.pose.position = Point(self.x+0.2,self.y-0.2,0.2)
+		mark.pose.position = Point(self.x+0.15,self.y-0.15,0.2)
 	        mark.color.r = 1.0
             	mark.color.g = 0.1
             	mark.color.b = 1.0
@@ -189,16 +189,16 @@ class Visual():
             	id = 0
 
             	mark.id = id
-            	mark.type = Marker.SPHERE
+		mark.type = Marker.CYLINDER
             	mark.action = Marker.ADD
 
             	mark.pose.orientation = Quaternion(*q)
 
-            	mark.scale.x = st
-            	mark.scale.y = st
-            	mark.scale.z = 0.01
+		mark.scale.x = 0.2
+		mark.scale.y = 0.2
+		mark.scale.z = st
 
-            	mark.color.a = 0.5
+            	mark.color.a = 1.0
 
             	count = 0
 
@@ -216,7 +216,9 @@ class Visual():
             	count += 1
 
 		i += 1 
+		self.last_time = self.cur_time
 	    except :
+		i += 1
             	self.last_time = self.cur_time
 
 
@@ -290,7 +292,7 @@ class Visual():
 
 
 if __name__ == '__main__':
-    rospy.init_node('motors')
+    rospy.init_node('visual')
     v = Visual()
     rate = rospy.Rate(10)
     t = time.time()
@@ -304,7 +306,7 @@ if __name__ == '__main__':
 	v.send_odom()
 	v.send_ssid()
 	rate.sleep()
-	if ( time.time() - t )  >  10 :
+	if ( time.time() - t )  >  15 :
 	    t = time.time() 
 	    v.send_mark()
 	    rate.sleep()
