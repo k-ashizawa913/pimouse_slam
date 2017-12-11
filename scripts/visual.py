@@ -104,7 +104,6 @@ class Visual():
     def send_odom(self):
 	self.cur_time = rospy.Time.now()
 
-	#曖昧な修正
 	dt = self.cur_time.to_sec() - self.last_time.to_sec()
 	self.x += self.vx * math.cos(self.th) * dt
 	self.y += self.vx * math.sin(self.th) * dt
@@ -230,7 +229,7 @@ class Visual():
 
             mark2 = Marker()
             mark2.header.stamp = self.cur_time
-            mark2.header.frame_id = "odom"
+            mark2.header.frame_id = "base_link"
 
 	    if i == 0 :
                 mark2.text = ssid
@@ -271,8 +270,8 @@ class Visual():
             mark2.type = Marker.TEXT_VIEW_FACING
             mark2.action = Marker.ADD
 
-            mark2.pose.position.y = -3.0
-            mark2.pose.position.z = 2.0
+            mark2.pose.position.y = -4.0
+            mark2.pose.position.z = 4.0
             mark2.pose.orientation.x = 1.0
             mark2.pose.orientation.y = 1.0
             mark2.pose.orientation.z = 1.0
@@ -306,7 +305,7 @@ if __name__ == '__main__':
 	v.send_odom()
 	v.send_ssid()
 	rate.sleep()
-	if ( time.time() - t )  >  15 :
+	if ( time.time() - t )  >  20 :
 	    t = time.time() 
 	    v.send_mark()
 	    rate.sleep()
