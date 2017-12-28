@@ -18,13 +18,13 @@ class Run():
         self.sensor_values = messages
 
     def wall_front(self,ls):
-        return ls.left_forward < 50 and ls.right_forward < 50
+        return ls.left_forward < 30 and ls.right_forward < 30
 
     def too_right(self,ls):
-        return ls.right_side < 60
+        return ls.right_side < 20
 
     def too_left(self,ls):
-        return ls.left_side < 60
+        return ls.left_side < 20
 
     def run(self):
         rate = rospy.Rate(10)
@@ -41,9 +41,8 @@ class Run():
 		#if time.time() - A < 1000:
 		    #sys.exit()
             elif self.too_right(self.sensor_values):
-		data.linear.x = 0.0
+		data.linear.x = -0.15
                 data.angular.z = -2.0
-		time.sleep(0.2)
             elif self.too_left(self.sensor_values):
 		data.linear.x = -0.15
                 data.angular.z = -3.14/4    
@@ -55,7 +54,7 @@ class Run():
             rate.sleep()
 
 if __name__ == '__main__':
-    rospy.init_node('wall_trace')
+    rospy.init_node('run')
 
     rospy.wait_for_service('/motor_on')
     rospy.wait_for_service('/motor_off')

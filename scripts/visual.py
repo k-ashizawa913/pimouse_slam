@@ -181,7 +181,7 @@ class Visual():
 	    try :
 	    	stdout = subprocess.check_output(cmd,shell=True)
 	    	st = float(stdout[28:30]) * 0.01
-	    	print st  ##
+	    	print st*100  ##
 		print cmd ##
 		
 
@@ -229,7 +229,8 @@ class Visual():
 
             mark2 = Marker()
             mark2.header.stamp = self.cur_time
-            mark2.header.frame_id = "base_link"
+            #mark2.header.frame_id = "base_link"
+	    mark2.header.frame_id = "map"	#map
 
 	    if i == 0 :
                 mark2.text = ssid
@@ -237,7 +238,8 @@ class Visual():
             	mark2.color.r = 0.1
             	mark2.color.g = 0.1
             	mark2.color.b = 1.0
-            	mark2.pose.position.x = -2.0
+            	mark2.pose.position.x = -0.5
+		mark2.pose.position.z = 4.0
 
             elif i == 1 :
             	mark2.text = ssid2
@@ -245,7 +247,8 @@ class Visual():
             	mark2.color.r = 1.0
             	mark2.color.g = 0.1
             	mark2.color.b = 0.1
-                mark2.pose.position.x = -1.0
+                mark2.pose.position.x = 0.0
+		mark2.pose.position.z = 4.5
 
        	    elif i == 2 :
         	mark2.text = ssid3
@@ -253,7 +256,8 @@ class Visual():
             	mark2.color.r = 0.1
             	mark2.color.g = 1.0
                 mark2.color.b = 0.1
-                mark2.pose.position.x = 0.0
+                mark2.pose.position.x = 0.5
+		mark2.pose.position.z = 5.0
 
 	    else :
         	mark2.text = ssid4
@@ -262,6 +266,7 @@ class Visual():
                 mark2.color.g = 0.1
                 mark2.color.b = 1.0
             	mark2.pose.position.x = 1.0
+		mark2.pose.position.z = 5.5
 
 
             id = 0
@@ -270,11 +275,11 @@ class Visual():
             mark2.type = Marker.TEXT_VIEW_FACING
             mark2.action = Marker.ADD
 
-            mark2.pose.position.y = -4.0
-            mark2.pose.position.z = 4.0
-            mark2.pose.orientation.x = 1.0
-            mark2.pose.orientation.y = 1.0
-            mark2.pose.orientation.z = 1.0
+            mark2.pose.position.y = -5.0
+
+            mark2.pose.orientation.x = 0.0
+            mark2.pose.orientation.y = 0.0
+            mark2.pose.orientation.z = 0.0
             mark2.pose.orientation.w = 1.0
 
             mark2.scale.x = 0.5
